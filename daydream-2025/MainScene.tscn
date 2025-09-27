@@ -1,0 +1,72 @@
+[gd_scene load_steps=11 format=3 uid="uid://bnob02rrk00e"]
+
+[ext_resource type="Texture2D" uid="uid://b1jb4lk27itnd" path="res://FgfkaZ3XwAMemG3.png" id="1_3mqji"]
+[ext_resource type="Texture2D" uid="uid://b065qg3ahx6gn" path="res://paper-holder.png" id="2_hbc2u"]
+[ext_resource type="Shader" uid="uid://cpkdiqse30i1b" path="res://MainScene.gdshader" id="2_rf2cd"]
+[ext_resource type="Texture2D" uid="uid://bv40f5f42h1kd" path="res://back1.png" id="2_rpqi1"]
+[ext_resource type="Script" uid="uid://dxujtwo436251" path="res://color_rect.gd" id="3_a814b"]
+[ext_resource type="Script" uid="uid://duilbn13wynkx" path="res://area_2d.gd" id="3_torvr"]
+[ext_resource type="Texture2D" uid="uid://coxrfib5qslb0" path="res://back21.png" id="3_uxrcv"]
+[ext_resource type="Script" uid="uid://u4bsb0i22nbi" path="res://control.gd" id="6_a814b"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8xkvn"]
+size = Vector2(47.875023, 58.49293)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rf2cd"]
+shader = ExtResource("2_rf2cd")
+shader_parameter/blur_strength = 0.0
+
+[node name="MainScene" type="Node2D"]
+
+[node name="BG" type="Node" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="BG"]
+position = Vector2(580, 488)
+scale = Vector2(1.80273, 1.81368)
+texture = ExtResource("1_3mqji")
+
+[node name="Sprite2D2" type="Sprite2D" parent="BG"]
+position = Vector2(883.94, 234.15)
+scale = Vector2(3.2793744, 3.214063)
+texture = ExtResource("2_hbc2u")
+
+[node name="Area2D" type="Area2D" parent="BG/Sprite2D2"]
+script = ExtResource("3_torvr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BG/Sprite2D2/Area2D"]
+position = Vector2(2.0003357, -0.980072)
+scale = Vector2(0.9999998, 1)
+shape = SubResource("RectangleShape2D_8xkvn")
+
+[node name="Hand" type="Node" parent="."]
+
+[node name="Open" type="Sprite2D" parent="Hand"]
+visible = false
+position = Vector2(720, 386)
+scale = Vector2(10.875, 11.125)
+texture = ExtResource("2_rpqi1")
+
+[node name="Closed" type="Sprite2D" parent="Hand"]
+visible = false
+position = Vector2(509, 394)
+scale = Vector2(12.9375, 15.25)
+texture = ExtResource("3_uxrcv")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+material = SubResource("ShaderMaterial_rf2cd")
+offset_left = -453.0
+offset_top = -274.0
+offset_right = 1591.0
+offset_bottom = 1232.0
+script = ExtResource("3_a814b")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -446.0
+offset_top = -260.0
+offset_right = 1584.0
+offset_bottom = 1209.0
+script = ExtResource("6_a814b")
