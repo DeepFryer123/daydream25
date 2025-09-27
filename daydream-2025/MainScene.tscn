@@ -97,3 +97,4 @@ text = "Health:"
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("11_p5x2j")
 autoplay = true
+parameters/looping = true
