@@ -1,9 +1,12 @@
 extends ColorRect
 
-# Gameplay click variables
-@export var blur_increment: float = 0.01
-@export var health_decrement: float = 0.1
-@export var health_bar_path: NodePath
+# Gameplay variables
+@export var blur_increment: float = 0.067
+var health: float = 100.0
+@export var health_decrement: float = 5.0
+
+# Audio
+@export var game_over_audio_path: String = "res://fahhh-pump-sound.mp3" # Replace with your audio file
 
 # Intro variables
 var intro_active: bool = true
@@ -17,12 +20,12 @@ var blur_material: ShaderMaterial
 func _ready():
 	blur_material = material
 	original_color = color
-	
+
 	if intro_active:
 		setup_intro()
 
 func setup_intro():
-	# Temporarily hide blur and make black
+	# Hide blur temporarily and make black
 	material = null
 	color = Color.BLACK
 	
@@ -46,7 +49,6 @@ func setup_intro():
 	press_start_label.position.y += 50
 	add_child(press_start_label)
 	
-	# Ensure the intro is on top
 	z_index = 2000
 	modulate.a = 1.0
 
@@ -61,19 +63,16 @@ func _process(delta):
 		var mat = material
 		if mat and mat is ShaderMaterial:
 			var current_blur = mat.get_shader_parameter("blur_strength")
-			var new_blur = clamp(current_blur, 0.0, 1.0)
-			mat.set_shader_parameter("blur_strength", new_blur)
+			mat.set_shader_parameter("blur_strength", clamp(current_blur, 0.0, 1.0))
 
 func _input(event):
 	if intro_active:
 		if (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
 			start_intro_end()
-	# After intro, clicks affect gameplay
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		increase_blur()
 		decrease_health()
 
-# Intro fade
 func start_intro_end():
 	intro_active = false
 	var tween = create_tween()
@@ -81,17 +80,14 @@ func start_intro_end():
 	tween.tween_callback(switch_to_blur)
 
 func switch_to_blur():
-	# Remove intro labels
 	if title_label:
 		title_label.queue_free()
 	if press_start_label:
 		press_start_label.queue_free()
 	
-	# Restore blur shader and original color
 	material = blur_material
 	color = original_color
 	
-	# Fade back in
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 1.0, 0.5)
 
@@ -100,16 +96,43 @@ func increase_blur():
 	var mat = material
 	if mat and mat is ShaderMaterial:
 		var current_blur = mat.get_shader_parameter("blur_strength")
-		var new_blur = clamp(current_blur + blur_increment, 0.0, 1.0)
-		mat.set_shader_parameter("blur_strength", new_blur)
-		print("blur_strength updated to: ", new_blur)
-	else:
-		print("ColorRect does not have a ShaderMaterial")
+		mat.set_shader_parameter("blur_strength", clamp(current_blur + blur_increment, 0.0, 1.0))
+		print("blur_strength updated to: ", mat.get_shader_parameter("blur_strength"))
 
 func decrease_health():
-	var health_bar = get_node_or_null(health_bar_path)
-	if health_bar and health_bar is ProgressBar:
-		health_bar.value = clamp(health_bar.value - health_decrement * health_bar.max_value, 0, health_bar.max_value)
-		print("Health decreased to: ", health_bar.value)
-	else:
-		print("Health ProgressBar not found or invali")
+	health = max(health - health_decrement, 0)
+	print("Health: ", health)
+
+	if health <= 0:
+		game_over()
+
+func game_over():
+	# Reset blur to 0
+	var mat = material
+	if mat and mat is ShaderMaterial:
+		mat.set_shader_parameter("blur_strength", 0.0)
+	
+	# Black overlay
+	var blackout := ColorRect.new()
+	blackout.color = Color.BLACK
+	blackout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	get_tree().root.add_child(blackout)
+
+	# End text
+	var label := Label.new()
+	label.text = "WOMP WOMP"
+	label.add_theme_font_size_override("font_size", 64)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	blackout.add_child(label)
+	blackout.z_index = 9999
+
+	# Play audio once
+	if game_over_audio_path != "":
+		var end_audio := AudioStreamPlayer.new()
+		end_audio.stream = preload("res://fahhh-pump-sound.mp3")  # <-- path must be a string
+		end_audio.volume_db = 10.0
+		end_audio.autoplay = false
+		get_tree().root.add_child(end_audio)
+		end_audio.play()

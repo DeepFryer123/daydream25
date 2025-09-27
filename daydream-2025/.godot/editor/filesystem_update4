@@ -1,5 +1,4 @@
 res://MainScene.tscn
 res://MainScene.gdshader
-res://color_rect.gd
-res://main_scene.gd
 res://health.gd
+res://color_rect.gd
