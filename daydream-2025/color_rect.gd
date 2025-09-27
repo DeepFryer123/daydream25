@@ -112,4 +112,4 @@ func decrease_health():
 		health_bar.value = clamp(health_bar.value - health_decrement * health_bar.max_value, 0, health_bar.max_value)
 		print("Health decreased to: ", health_bar.value)
 	else:
-		print("Health ProgressBar not found or invalid")
+		print("Health ProgressBar not found or invali")
