@@ -6,7 +6,8 @@ var health: float = 100.0
 @export var health_decrement: float = 5.0
 
 # Audio
-@export var game_over_audio_path: String = "res://fahhh-pump-sound.mp3" # Replace with your audio file
+@export var click_audio_path: String = "res://click_sound.ogg"  # sound for each click
+@export var game_over_audio_path: String = "res://fahhh-pump-sound.mp3"  # sound when game ends
 
 # Intro variables
 var intro_active: bool = true
@@ -25,11 +26,10 @@ func _ready():
 		setup_intro()
 
 func setup_intro():
-	# Hide blur temporarily and make black
 	material = null
 	color = Color.BLACK
 	
-	# Create title label
+	# Title label
 	title_label = Label.new()
 	title_label.text = "Beverage Simulator"
 	title_label.add_theme_font_size_override("font_size", 64)
@@ -39,7 +39,7 @@ func setup_intro():
 	title_label.position.y -= 100
 	add_child(title_label)
 	
-	# Create press start label
+	# Press start label
 	press_start_label = Label.new()
 	press_start_label.text = "Click to Start"
 	press_start_label.add_theme_font_size_override("font_size", 24)
@@ -70,6 +70,7 @@ func _input(event):
 		if (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
 			start_intro_end()
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		play_click_sound()
 		increase_blur()
 		decrease_health()
 
@@ -106,6 +107,15 @@ func decrease_health():
 	if health <= 0:
 		game_over()
 
+# Click sound
+func play_click_sound():
+	if click_audio_path != "":
+		var click_audio := AudioStreamPlayer.new()
+		click_audio.stream = preload("res://minecraft-drinking-sound-effect.mp3")
+		click_audio.autoplay = false
+		get_tree().root.add_child(click_audio)
+		click_audio.play()
+
 func game_over():
 	# Reset blur to 0
 	var mat = material
@@ -131,8 +141,7 @@ func game_over():
 	# Play audio once
 	if game_over_audio_path != "":
 		var end_audio := AudioStreamPlayer.new()
-		end_audio.stream = preload("res://fahhh-pump-sound.mp3")  # <-- path must be a string
-		end_audio.volume_db = 10.0
+		end_audio.stream = preload("res://fahhh-pump-sound.mp3")
 		end_audio.autoplay = false
 		get_tree().root.add_child(end_audio)
 		end_audio.play()
